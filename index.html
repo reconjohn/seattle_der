@@ -84,13 +84,8 @@
   <div id='map'></div>
   <div id="console">
     <h1>DER Cumulative Installation Heat Map in Seattle</h1>
-    <p>
-      Data:
-      <a
-        href="https://data.seattle.gov/Built-Environment/Electrical-Permits/c4tj-daue/about_data"
-        >Seattle Electrical Permits</a
-      > from Seattle open data portal
-    </p>
+    <h2>Red: Rooftop Solar (PV), Blue: Electric Vehicles (EV), and Green: Heat pumps (HP)</h2>
+    <p>Data:<a href="https://data.seattle.gov/Built-Environment/Electrical-Permits/c4tj-daue/about_data">Seattle Electrical Permits</a> from Seattle open data portal</p>
     <div class="session">
       <h2>Year: <label id="active-year">2019</label></h2>
       <input
@@ -112,7 +107,7 @@
       container: 'map',
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [-122.293, 47.5755],
-        zoom: 11,
+        zoom: 10,
         pitch: 30.00,
         bearing: 0
     });
