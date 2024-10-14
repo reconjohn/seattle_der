@@ -106,9 +106,9 @@
       container: 'map',
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [-122.093, 47.3755],
-        zoom: 7,
+        zoom: 10,
         pitch: 45.00,
-        bearing: -40
+        bearing: 0
     });
 
     map.on('load', () => {
@@ -128,7 +128,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'year',
+                property: 'Year',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -190,7 +190,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'year',
+                property: 'Year',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -251,7 +251,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'year',
+                property: 'Year',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -310,7 +310,7 @@
             'paint': {
             // increase the radius of the circle as the zoom level and dbh value increases
             'circle-radius': {
-            'property': 'year',
+            'property': 'Year',
             'type': 'exponential',
             'stops': [
             [{ zoom: 15, value: 1 }, 5],
@@ -320,7 +320,7 @@
             ]
             },
             'circle-color': {
-            'property': 'year',
+            'property': 'Year',
             'type': 'exponential',
             'stops': [
             [0, 'rgba(236,222,239,0)'],
@@ -350,16 +350,16 @@
         document.getElementById('slider').addEventListener('input', (event) => {
           const year = parseInt(event.target.value);
           // update the map
-          filterYear = ['<=', ['number', ['get', 'Year']], year];
-          map.setFilter('PV-heat', ['all', filterYear]);
+          filterYear = ['<=', ['number', ['get', 'Year']], Year];
+          map.setFilter('heat', ['all', filterYear]);
 
-        document.getElementById('active-year').innerText = year;
+        document.getElementById('active-year').innerText = Year;
         });
 
     map.on('click', 'heat-point', (event) => {
         new mapboxgl.Popup()
         .setLngLat(event.features[0].geometry.coordinates)
-        .setHTML(`<strong>year:</strong> ${event.features[0].properties.year}`)
+        .setHTML(`<strong>Year:</strong> ${event.features[0].properties.Year}`)
         .addTo(map);
         });     
 
