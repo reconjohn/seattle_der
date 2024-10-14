@@ -105,8 +105,8 @@
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-123.093, 47.8755],
-        zoom: 10,
+      center: [-122.693, 47.5755],
+        zoom: 11,
         pitch: 45.00,
         bearing: 0
     });
@@ -350,10 +350,10 @@
         document.getElementById('slider').addEventListener('input', (event) => {
           const year = parseInt(event.target.value);
           // update the map
-          filterYear = ['<=', ['number', ['get', 'Year']], Year];
+          filterYear = ['<=', ['number', ['get', 'Year']], year];
           map.setFilter('PV-heat', ['all', filterYear]);
 
-        document.getElementById('active-year').innerText = Year;
+        document.getElementById('active-year').innerText = year;
         });
 
     map.on('click', 'heat-point', (event) => {
