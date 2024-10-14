@@ -86,7 +86,9 @@
     <h1>DER Cumulative Installation Heat Map in Seattle</h1>
 
     <div>
-      <input type="radio" id="techPV" name="tech" value="PV" checked>
+      <input type="radio" id="techAll" name="tech" value="All" checked>
+      <label for="techAll">All</label><br>
+      <input type="radio" id="techPV" name="tech" value="PV">
       <label for="techPV">PV</label><br>
       <input type="radio" id="techEV" name="tech" value="EV">
       <label for="techEV">EV</label><br>
@@ -123,7 +125,7 @@
     });
 
     let filterYear = ['<=', ['number', ['get', 'Year']], 2019];
-    let selectedTech = 'PV'; // Default to 'PV'
+    let selectedTech = 'All'; // Default to 'All'
 
     map.on('load', () => {
  
@@ -450,9 +452,17 @@
 
     // Function to update the filters based on selected tech and year
     function updateMapFilters() {
-      map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
-      map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
-      map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+      if (selectedTech === 'All') {
+        // Show all technologies
+        map.setFilter('PV-heat', filterYear);
+        map.setFilter('EV-heat', filterYear);
+        map.setFilter('HP-heat', filterYear);
+      } else {
+        // Show only the selected technology
+        map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
+        map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
+        map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+      }
     }
 
   </script>
