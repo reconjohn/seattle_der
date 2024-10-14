@@ -465,16 +465,16 @@
           },
           'heatmap-intensity': {
             stops: [
-              [11, 1],
-              [15, 3]
+              [11, 0.5],
+              [15, 2]
             ]
           },
           'heatmap-color': heatmapColor,
 
           'heatmap-radius': {
             stops: [
-              [11, 15],
-              [15, 20]
+              [11, 5],
+              [15, 10]
             ]
           },
           'heatmap-opacity': {
@@ -488,52 +488,52 @@
       }, 'waterway-label');
     }
 
-// // Function to update the filters and colors based on selected tech and year
-// function updateMapFilters() {
-//     if (selectedTech === 'All') {
-//       // Show all technologies and apply the "All" color scheme
-//       map.setFilter('PV-heat', filterYear);
-//       map.setFilter('EV-heat', filterYear);
-//       map.setFilter('HP-heat', filterYear);
+// Function to update the filters and colors based on selected tech and year
+function updateMapFilters() {
+    if (selectedTech === 'All') {
+      // Show all technologies and apply the "All" color scheme
+      map.setFilter('PV-heat', filterYear);
+      map.setFilter('EV-heat', filterYear);
+      map.setFilter('HP-heat', filterYear);
       
-//       // Apply the custom "All" color scheme
-//       map.setPaintProperty('PV-heat', 'heatmap-color', [
-//         'interpolate',
-//         ['linear'],
-//         ['heatmap-density'],
-//         0, 'rgba(236,222,239,0)',
-//         0.2, 'rgb(208,209,230)',
-//         0.4, 'rgb(166,189,219)',
-//         0.6, 'rgb(103,169,207)',
-//         0.8, 'rgb(28,144,153)'
-//       ]);
-//       map.setPaintProperty('EV-heat', 'heatmap-color', [
-//         'interpolate',
-//         ['linear'],
-//         ['heatmap-density'],
-//         0, 'rgba(236,222,239,0)',
-//         0.2, 'rgb(208,209,230)',
-//         0.4, 'rgb(166,189,219)',
-//         0.6, 'rgb(103,169,207)',
-//         0.8, 'rgb(28,144,153)'
-//       ]);
-//       map.setPaintProperty('HP-heat', 'heatmap-color', [
-//         'interpolate',
-//         ['linear'],
-//         ['heatmap-density'],
-//         0, 'rgba(236,222,239,0)',
-//         0.2, 'rgb(208,209,230)',
-//         0.4, 'rgb(166,189,219)',
-//         0.6, 'rgb(103,169,207)',
-//         0.8, 'rgb(28,144,153)'
-//       ]);
-//     } else {
-//       // Show only the selected technology
-//       map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
-//       map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
-//       map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
-//     }
-//   }
+      // Apply the custom "All" color scheme
+      map.setPaintProperty('PV-heat', 'heatmap-color', [
+        'interpolate',
+        ['linear'],
+        ['heatmap-density'],
+        0, 'rgba(236,222,239,0)',
+        0.2, 'rgb(208,209,230)',
+        0.4, 'rgb(166,189,219)',
+        0.6, 'rgb(103,169,207)',
+        0.8, 'rgb(28,144,153)'
+      ]);
+      map.setPaintProperty('EV-heat', 'heatmap-color', [
+        'interpolate',
+        ['linear'],
+        ['heatmap-density'],
+        0, 'rgba(236,222,239,0)',
+        0.2, 'rgb(208,209,230)',
+        0.4, 'rgb(166,189,219)',
+        0.6, 'rgb(103,169,207)',
+        0.8, 'rgb(28,144,153)'
+      ]);
+      map.setPaintProperty('HP-heat', 'heatmap-color', [
+        'interpolate',
+        ['linear'],
+        ['heatmap-density'],
+        0, 'rgba(236,222,239,0)',
+        0.2, 'rgb(208,209,230)',
+        0.4, 'rgb(166,189,219)',
+        0.6, 'rgb(103,169,207)',
+        0.8, 'rgb(28,144,153)'
+      ]);
+    } else {
+      // Show only the selected technology
+      map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
+      map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
+      map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+    }
+  }
 
   </script>
 </body>
