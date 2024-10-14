@@ -399,53 +399,8 @@
         });     
       });
 
-  // Function to add heatmap layers based on technology
-  function addHeatmapLayer(layerId, techType) {
-    let heatmapColor;
-    if (techType === 'All') {
-      heatmapColor = [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(255,255,255,0)',  // No color for zero density
-        0.1, 'rgb(255,160,160)',   // Light red for PV
-        0.2, 'rgb(160,160,255)',   // Light blue for EV
-        0.3, 'rgb(160,255,160)',   // Light green for HP
-        0.5, 'rgb(255,80,80)',     // Stronger red for PV
-        0.7, 'rgb(80,80,255)',     // Stronger blue for EV
-        1, 'rgb(80,255,80)'        // Stronger green for HP
-      ];
-    } else {
-      heatmapColor = techType === 'PV' ? [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(255,220,220,0)',
-        0.2, 'rgb(255,160,160)',
-        0.4, 'rgb(255,120,120)',
-        0.6, 'rgb(255,80,80)',
-        0.8, 'rgb(200,40,40)'
-      ] : techType === 'EV' ? [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(220,220,255,0)',
-        0.2, 'rgb(160,160,255)',
-        0.4, 'rgb(120,120,255)',
-        0.6, 'rgb(80,80,255)',
-        0.8, 'rgb(40,40,200)'
-      ] : [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(220,255,220,0)',
-        0.2, 'rgb(160,255,160)',
-        0.4, 'rgb(120,255,120)',
-        0.6, 'rgb(80,255,80)',
-        0.8, 'rgb(40,200,40)'
-      ];
-    }
-
+  // Function to add individual heatmap layers for each technology
+  function addHeatmapLayer(layerId, techType, color) {
     map.addLayer({
       id: layerId,
       type: 'heatmap',
@@ -467,7 +422,14 @@
             [15, 2]
           ]
         },
-        'heatmap-color': heatmapColor,
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, 'rgba(255,255,255,0)',  // Transparent for low density
+          0.2, color,                // Use the input color
+          1, color                   // Full color for high density
+        ],
         'heatmap-radius': {
           stops: [
             [11, 5],
@@ -485,55 +447,46 @@
     }, 'waterway-label');
   }
 
-  // Function to update the filters and colors based on selected tech and year
+  // Function to toggle layers visibility based on the selected technology
   function updateMapFilters() {
     if (selectedTech === 'All') {
-      map.setFilter('PV-heat', filterYear);
-      map.setFilter('EV-heat', filterYear);
-      map.setFilter('HP-heat', filterYear);
-      
-      map.setPaintProperty('PV-heat', 'heatmap-color', [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(255,255,255,0)',
-        0.1, 'rgb(255,160,160)',   // Light red for PV
-        0.2, 'rgb(160,160,255)',   // Light blue for EV
-        0.3, 'rgb(160,255,160)',   // Light green for HP
-        0.5, 'rgb(255,80,80)',     // Stronger red for PV
-        0.7, 'rgb(80,80,255)',     // Stronger blue for EV
-        1, 'rgb(80,255,80)'        // Stronger green for HP
-      ]);
-      map.setPaintProperty('EV-heat', 'heatmap-color', [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(255,255,255,0)',
-        0.1, 'rgb(255,160,160)',   // Light red for PV
-        0.2, 'rgb(160,160,255)',   // Light blue for EV
-        0.3, 'rgb(160,255,160)',   // Light green for HP
-        0.5, 'rgb(255,80,80)',     // Stronger red for PV
-        0.7, 'rgb(80,80,255)',     // Stronger blue for EV
-        1, 'rgb(80,255,80)'        // Stronger green for HP
-      ]);
-      map.setPaintProperty('HP-heat', 'heatmap-color', [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0, 'rgba(255,255,255,0)',
-        0.1, 'rgb(255,160,160)',   // Light red for PV
-        0.2, 'rgb(160,160,255)',   // Light blue for EV
-        0.3, 'rgb(160,255,160)',   // Light green for HP
-        0.5, 'rgb(255,80,80)',     // Stronger red for PV
-        0.7, 'rgb(80,80,255)',     // Stronger blue for EV
-        1, 'rgb(80,255,80)'        // Stronger green for HP
-      ]);
+      // Show all layers
+      map.setLayoutProperty('PV-heat', 'visibility', 'visible');
+      map.setLayoutProperty('EV-heat', 'visibility', 'visible');
+      map.setLayoutProperty('HP-heat', 'visibility', 'visible');
     } else {
-      map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
-      map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
-      map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+      // Hide all layers first
+      map.setLayoutProperty('PV-heat', 'visibility', 'none');
+      map.setLayoutProperty('EV-heat', 'visibility', 'none');
+      map.setLayoutProperty('HP-heat', 'visibility', 'none');
+
+      // Show only the selected layer
+      if (selectedTech === 'PV') {
+        map.setLayoutProperty('PV-heat', 'visibility', 'visible');
+      } else if (selectedTech === 'EV') {
+        map.setLayoutProperty('EV-heat', 'visibility', 'visible');
+      } else if (selectedTech === 'HP') {
+        map.setLayoutProperty('HP-heat', 'visibility', 'visible');
+      }
     }
   }
+
+  // Initialize heatmap layers for each technology
+  map.on('load', function () {
+    // Add heatmap layers for each technology
+    addHeatmapLayer('PV-heat', 'PV', 'rgb(255,80,80)'); // Red for PV
+    addHeatmapLayer('EV-heat', 'EV', 'rgb(80,80,255)'); // Blue for EV
+    addHeatmapLayer('HP-heat', 'HP', 'rgb(80,255,80)'); // Green for HP
+
+    // Initial map filters (default visibility)
+    updateMapFilters();
+  });
+
+  // Dropdown toggle for changing technology visibility
+  document.getElementById('tech-select').addEventListener('change', function () {
+    selectedTech = this.value;
+    updateMapFilters();
+  });
 
   </script>
 </body>
