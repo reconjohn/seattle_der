@@ -127,9 +127,8 @@
     let selectedTech = 'All'; // Default to 'All'
 
 
-    // Function to add heatmap layers based on technology
-  function addHeatmapLayer(layerId, techType) {
-    
+  // Function to add individual heatmap layers for each technology
+  function addHeatmapLayer(layerId, techType, color) {
     map.addLayer({
       id: layerId,
       type: 'heatmap',
@@ -155,16 +154,14 @@
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, techType === 'PV' ? 'rgba(255,220,220,0)' : techType === 'EV' ? 'rgba(220,220,255,0)' : 'rgba(220,255,220,0)',
-          0.2, techType === 'PV' ? 'rgb(255,160,160)' : techType === 'EV' ? 'rgb(160,160,255)' : 'rgb(160,255,160)',
-          0.4, techType === 'PV' ? 'rgb(255,120,120)' : techType === 'EV' ? 'rgb(120,120,255)' : 'rgb(120,255,120)',
-          0.6, techType === 'PV' ? 'rgb(255,80,80)' : techType === 'EV' ? 'rgb(80,80,255)' : 'rgb(80,255,80)',
-          0.8, techType === 'PV' ? 'rgb(200,40,40)' : techType === 'EV' ? 'rgb(40,40,200)' : 'rgb(40,200,40)'
+          0, 'rgba(255,255,255,0)',  // Transparent for low density
+          0.2, color,                // Use the input color
+          1, color                   // Full color for high density
         ],
         'heatmap-radius': {
           stops: [
-            [11, 10],
-            [15, 15]
+            [11, 5],
+            [15, 10]
           ]
         },
         'heatmap-opacity': {
@@ -200,9 +197,9 @@
             data: './data/der.geojson'
         });
 
-        addHeatmapLayer('PV-heat', 'PV');
-        addHeatmapLayer('EV-heat', 'EV');
-        addHeatmapLayer('HP-heat', 'HP');
+        addHeatmapLayer('PV-heat', 'PV', 'rgb(255,80,80)'); // Red for PV
+        addHeatmapLayer('EV-heat', 'EV', 'rgb(80,80,255)'); // Blue for EV
+        addHeatmapLayer('HP-heat', 'HP', 'rgb(80,255,80)'); // Green for HP
 
 
         map.addLayer(
@@ -265,11 +262,7 @@
           const year = parseInt(event.target.value);
           // update the map
           filterYear = ['<=', ['number', ['get', 'Year']], year];
-          // Update filters for each layer
-          // map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
-          // map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
-          // map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
-          // map.setFilter('heat-point', filterYear);
+
         updateMapFilters();
         document.getElementById('active-year').innerText = year;
         });
@@ -281,8 +274,6 @@
         .addTo(map);
         });     
       });
-
-  
 
   </script>
 </body>
