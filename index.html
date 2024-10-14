@@ -202,7 +202,6 @@
         addHeatmapLayer('EV-heat', 'EV', 'rgb(80,80,255)'); // Blue for EV
 
 
-
         map.addLayer(
             {
             'id': 'heat-point',
@@ -253,6 +252,7 @@
             radio.addEventListener('change', (event) => {
               selectedTech = event.target.value;
               updateMapFilters();
+              map.setFilter('heat-point', filterYear);
           });
         });
 
@@ -265,6 +265,7 @@
           filterYear = ['<=', ['number', ['get', 'Year']], year];
 
         updateMapFilters();
+        map.setFilter('heat-point', filterYear);
         document.getElementById('active-year').innerText = year;
         });
 
