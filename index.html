@@ -126,6 +126,73 @@
     let filterYear = ['<=', ['number', ['get', 'Year']], 2019];
     let selectedTech = 'All'; // Default to 'All'
 
+
+    // Function to add heatmap layers based on technology
+  function addHeatmapLayer(layerId, techType) {
+    
+    map.addLayer({
+      id: layerId,
+      type: 'heatmap',
+      source: 'heat',
+      maxzoom: 15,
+      filter: ['==', ['get', 'tech'], techType],
+      paint: {
+        'heatmap-weight': {
+          property: 'tech',
+          type: 'exponential',
+          stops: [
+            [1, 0],
+            [62, 1]
+          ]
+        },
+        'heatmap-intensity': {
+          stops: [
+            [11, 0.5],
+            [15, 2]
+          ]
+        },
+        'heatmap-color': [
+          'interpolate',
+          ['linear'],
+          ['heatmap-density'],
+          0, techType === 'PV' ? 'rgba(255,220,220,0)' : techType === 'EV' ? 'rgba(220,220,255,0)' : 'rgba(220,255,220,0)',
+          0.2, techType === 'PV' ? 'rgb(255,160,160)' : techType === 'EV' ? 'rgb(160,160,255)' : 'rgb(160,255,160)',
+          0.4, techType === 'PV' ? 'rgb(255,120,120)' : techType === 'EV' ? 'rgb(120,120,255)' : 'rgb(120,255,120)',
+          0.6, techType === 'PV' ? 'rgb(255,80,80)' : techType === 'EV' ? 'rgb(80,80,255)' : 'rgb(80,255,80)',
+          0.8, techType === 'PV' ? 'rgb(200,40,40)' : techType === 'EV' ? 'rgb(40,40,200)' : 'rgb(40,200,40)'
+        ],
+        'heatmap-radius': {
+          stops: [
+            [11, 10],
+            [15, 15]
+          ]
+        },
+        'heatmap-opacity': {
+          default: 1,
+          stops: [
+            [14, 1],
+            [15, 0]
+          ]
+        }
+      }
+    }, 'waterway-label');
+  }
+
+  // Function to update the filters based on selected tech and year
+  function updateMapFilters() {
+    if (selectedTech === 'All') {
+      // Show all technologies
+      map.setFilter('PV-heat', filterYear);
+      map.setFilter('EV-heat', filterYear);
+      map.setFilter('HP-heat', filterYear);
+    } else {
+      // Show only the selected technology
+      map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
+      map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
+      map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+    }
+  }
+
     map.on('load', () => {
  
         map.addSource('heat', {
@@ -138,190 +205,6 @@
         addHeatmapLayer('HP-heat', 'HP');
 
 
-        // map.addLayer(
-        //     { 
-        //     id: 'HP-heat',
-        //     type: 'heatmap',
-        //     source: 'heat',
-        //     maxzoom: 15,
-        //     filter: ['all', ['==', ['get', 'tech'], 'HP'], filterYear], // Filter for tech = HP
-        //     paint: {
-        //     // increase weight as diameter breast height increases
-        //     'heatmap-weight': {
-        //         property: 'tech',
-        //         type: 'exponential',
-        //         stops: [
-        //         [1, 0],
-        //         [62, 1]
-        //         ]
-        //     },
-        //     // increase intensity as zoom level increases
-        //     'heatmap-intensity': {
-        //         stops: [
-        //         [11, 1],
-        //         [15, 3]
-        //         ]
-        //     },
-        //     // assign color values be applied to points depending on their density
-        //     'heatmap-color': [
-        //         'interpolate',
-        //         ['linear'],
-        //         ['heatmap-density'],
-        //         0,
-        //         'rgba(220,255,220,0)',
-        //         0.2,
-        //         'rgb(160,255,160)',
-        //         0.4,
-        //         'rgb(120,255,120)',
-        //         0.6,
-        //         'rgb(80,255,80)',
-        //         0.8,
-        //         'rgb(40,200,40)'
-        //     ],
-        //     // increase radius as zoom increases
-        //     'heatmap-radius': {
-        //         stops: [
-        //         [11, 15],
-        //         [15, 20]
-        //         ]
-        //     },
-        //     // decrease opacity to transition into the circle layer
-        //     'heatmap-opacity': {
-        //         default: 1,
-        //         stops: [
-        //         [14, 1],
-        //         [15, 0]
-        //         ]
-        //     }
-        //     }
-        //     },
-        //     'waterway-label'
-        //     ); 
-
-
-        // map.addLayer(
-        //     { 
-        //     id: 'PV-heat',
-        //     type: 'heatmap',
-        //     source: 'heat',
-        //     maxzoom: 15,
-        //     filter: ['all', ['==', ['get', 'tech'], 'PV'], filterYear], // Filter for tech = PV
-        //     paint: {
-        //     // increase weight as diameter breast height increases
-        //     'heatmap-weight': {
-        //         property: 'tech',
-        //         type: 'exponential',
-        //         stops: [
-        //         [1, 0],
-        //         [62, 1]
-        //         ]
-        //     },
-        //     // increase intensity as zoom level increases
-        //     'heatmap-intensity': {
-        //         stops: [
-        //         [11, 1],
-        //         [15, 3]
-        //         ]
-        //     },
-        //     // assign color values be applied to points depending on their density
-        //     'heatmap-color': [
-        //         'interpolate',
-        //         ['linear'],
-        //         ['heatmap-density'],
-
-        //         0,
-        //         'rgba(255,220,220,0)',
-        //         0.2,
-        //         'rgb(255,160,160)',
-        //         0.4,
-        //         'rgb(255,120,120)',
-        //         0.6,
-        //         'rgb(255,80,80)',
-        //         0.8,
-        //         'rgb(200,40,40)'
-        //     ],
-        //     // increase radius as zoom increases
-        //     'heatmap-radius': {
-        //         stops: [
-        //         [11, 15],
-        //         [15, 20]
-        //         ]
-        //     },
-        //     // decrease opacity to transition into the circle layer
-        //     'heatmap-opacity': {
-        //         default: 1,
-        //         stops: [
-        //         [14, 1],
-        //         [15, 0]
-        //         ]
-        //     }
-        //     }
-        //     },
-        //     'waterway-label'
-        //     );
-
-
-        // map.addLayer(
-        //     { 
-        //     id: 'EV-heat',
-        //     type: 'heatmap',
-        //     source: 'heat',
-        //     maxzoom: 15,
-        //     filter: ['all', ['==', ['get', 'tech'], 'EV'], filterYear], // Filter for tech = EV
-        //     paint: {
-        //     // increase weight as diameter breast height increases
-        //     'heatmap-weight': {
-        //         property: 'tech',
-        //         type: 'exponential',
-        //         stops: [
-        //         [1, 0],
-        //         [62, 1]
-        //         ]
-        //     },
-        //     // increase intensity as zoom level increases
-        //     'heatmap-intensity': {
-        //         stops: [
-        //         [11, 1],
-        //         [15, 3]
-        //         ]
-        //     },
-        //     // assign color values be applied to points depending on their density
-        //     'heatmap-color': [
-        //         'interpolate',
-        //         ['linear'],
-        //         ['heatmap-density'],
-        //         0,
-        //         'rgba(220,220,255,0)',
-        //         0.2,
-        //         'rgb(160,160,255)',
-        //         0.4,
-        //         'rgb(120,120,255)',
-        //         0.6,
-        //         'rgb(80,80,255)',
-        //         0.8,
-        //         'rgb(40,40,200)'
-        //     ],
-        //     // increase radius as zoom increases
-        //     'heatmap-radius': {
-        //         stops: [
-        //         [11, 15],
-        //         [15, 20]
-        //         ]
-        //     },
-        //     // decrease opacity to transition into the circle layer
-        //     'heatmap-opacity': {
-        //         default: 1,
-        //         stops: [
-        //         [14, 1],
-        //         [15, 0]
-        //         ]
-        // }
-        // }
-        // },
-        // 'waterway-label'
-        // );
-            
-            
         map.addLayer(
             {
             'id': 'heat-point',
@@ -399,71 +282,7 @@
         });     
       });
 
-  // Function to add heatmap layers based on technology
-  function addHeatmapLayer(layerId, techType) {
-    
-      map.addLayer({
-        id: layerId,
-        type: 'heatmap',
-        source: 'heat',
-        maxzoom: 15,
-        filter: ['==', ['get', 'tech'], techType],
-        paint: {
-          'heatmap-weight': {
-            property: 'tech',
-            type: 'exponential',
-            stops: [
-              [1, 0],
-              [62, 1]
-            ]
-          },
-          'heatmap-intensity': {
-            stops: [
-              [11, 1],
-              [15, 3]
-            ]
-          },
-          'heatmap-color': [
-            'interpolate',
-            ['linear'],
-            ['heatmap-density'],
-            0, techType === 'PV' ? 'rgba(255,220,220,0)' : techType === 'EV' ? 'rgba(220,220,255,0)' : 'rgba(220,255,220,0)',
-            0.2, techType === 'PV' ? 'rgb(255,160,160)' : techType === 'EV' ? 'rgb(160,160,255)' : 'rgb(160,255,160)',
-            0.4, techType === 'PV' ? 'rgb(255,120,120)' : techType === 'EV' ? 'rgb(120,120,255)' : 'rgb(120,255,120)',
-            0.6, techType === 'PV' ? 'rgb(255,80,80)' : techType === 'EV' ? 'rgb(80,80,255)' : 'rgb(80,255,80)',
-            0.8, techType === 'PV' ? 'rgb(200,40,40)' : techType === 'EV' ? 'rgb(40,40,200)' : 'rgb(40,200,40)'
-          ],
-          'heatmap-radius': {
-            stops: [
-              [11, 15],
-              [15, 20]
-            ]
-          },
-          'heatmap-opacity': {
-            default: 1,
-            stops: [
-              [14, 1],
-              [15, 0]
-            ]
-          }
-        }
-      }, 'waterway-label');
-    }
-
-    // Function to update the filters based on selected tech and year
-    function updateMapFilters() {
-      if (selectedTech === 'All') {
-        // Show all technologies
-        map.setFilter('PV-heat', filterYear);
-        map.setFilter('EV-heat', filterYear);
-        map.setFilter('HP-heat', filterYear);
-      } else {
-        // Show only the selected technology
-        map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
-        map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
-        map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
-      }
-    }
+  
 
   </script>
 </body>
