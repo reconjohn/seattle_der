@@ -146,8 +146,8 @@
         },
         'heatmap-intensity': {
           stops: [
-            [11, 0.5],
-            [15, 2]
+            [11, 1],
+            [15, 3]
           ]
         },
         'heatmap-color': [
@@ -156,12 +156,14 @@
           ['heatmap-density'],
           0, 'rgba(255,255,255,0)',  // Transparent for low density
           0.2, color,                // Use the input color
-          1, color                   // Full color for high density
+          0.4, color,                // Use the input color
+          0.6, color,                // Use the input color
+          0.8, color                   // Full color for high density
         ],
         'heatmap-radius': {
           stops: [
-            [11, 5],
-            [15, 10]
+            [11, 15],
+            [15, 20]
           ]
         },
         'heatmap-opacity': {
