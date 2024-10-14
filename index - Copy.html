@@ -20,12 +20,6 @@
         width: 100%;
       }
 
-
-
-        input[type=range] {
-            width: 100%;
-        } 
-
       h1 {
         font-size: 20px;
         line-height: 30px;
@@ -113,7 +107,7 @@
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [-122.293, 47.5755],
         zoom: 11,
-        pitch: 60.00,
+        pitch: 45.00,
         bearing: 0
     });
 
@@ -130,7 +124,7 @@
             type: 'heatmap',
             source: 'heat',
             maxzoom: 15,
-            filter: ['all', ['==', ['get', 'tech'], 'PV'], filterYear], // Filter for tech = PV
+            filter: ['==', ['get', 'tech'], 'PV'], // Filter for tech = PV
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
@@ -192,7 +186,7 @@
             type: 'heatmap',
             source: 'heat',
             maxzoom: 15,
-            filter: ['all', ['==', ['get', 'tech'], 'EV'], filterYear], // Filter for tech = EV
+            filter: ['==', ['get', 'tech'], 'EV'], // Filter for tech = EV
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
@@ -253,7 +247,7 @@
             type: 'heatmap',
             source: 'heat',
             maxzoom: 15,
-            filter: ['all', ['==', ['get', 'tech'], 'HP'], filterYear], // Filter for tech = HP
+            filter: ['==', ['get', 'tech'], 'HP'], // Filter for tech = HP
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
@@ -313,7 +307,6 @@
             'type': 'circle',
             'source': 'heat',
             'minzoom': 14,
-            'filter': filterYear,
             'paint': {
             // increase the radius of the circle as the zoom level and dbh value increases
             'circle-radius': {
@@ -358,11 +351,9 @@
           const year = parseInt(event.target.value);
           // update the map
           filterYear = ['<=', ['number', ['get', 'Year']], year];
-          // Update filters for each layer
-          map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
-          map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
-          map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
-          map.setFilter('heat-point', filterYear);
+          //map.setFilter('PV-heat', ['all', filterYear]);
+          //map.setFilter('EV-heat', ['all', filterYear]);
+          //map.setFilter('HP-heat', ['all', filterYear]);
 
         document.getElementById('active-year').innerText = year;
         });
