@@ -128,7 +128,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'Year',
+                property: 'tech',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -190,7 +190,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'Year',
+                property: 'tech',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -251,7 +251,7 @@
             paint: {
             // increase weight as diameter breast height increases
             'heatmap-weight': {
-                property: 'Year',
+                property: 'tech',
                 type: 'exponential',
                 stops: [
                 [1, 0],
@@ -359,7 +359,7 @@
     map.on('click', 'heat-point', (event) => {
         new mapboxgl.Popup()
         .setLngLat(event.features[0].geometry.coordinates)
-        .setHTML(`<strong>Year:</strong> ${event.features[0].properties.Year}`)
+        .setHTML(`<strong>tech:</strong> ${event.features[0].properties.tech}`)
         .addTo(map);
         });     
 
