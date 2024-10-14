@@ -351,9 +351,9 @@
           const year = parseInt(event.target.value);
           // update the map
           filterYear = ['<=', ['number', ['get', 'Year']], year];
-          map.setFilter('PV-heat', ['all', filterYear]);
-          map.setFilter('EV-heat', ['all', filterYear]);
-          map.setFilter('HP-heat', ['all', filterYear]);
+          //map.setFilter('PV-heat', ['all', filterYear]);
+          //map.setFilter('EV-heat', ['all', filterYear]);
+          //map.setFilter('HP-heat', ['all', filterYear]);
 
         document.getElementById('active-year').innerText = year;
         });
