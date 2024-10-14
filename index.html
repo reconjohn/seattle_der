@@ -126,58 +126,6 @@
     let filterYear = ['<=', ['number', ['get', 'Year']], 2019];
     let selectedTech = 'All'; // Default to 'All'
 
-
-    function addHeatmapLayer(layerId, techType, color) {
-    map.addLayer({
-      id: layerId,
-      type: 'heatmap',
-      source: 'heat',
-      maxzoom: 15,
-      filter: ['all', ['==', ['get', 'tech'], techType], ['<=', ['number', ['get', 'Year']], selectedYear]], // Filter by tech and year
-      paint: {
-        'heatmap-weight': { property: 'tech', type: 'exponential', stops: [[1, 0], [62, 1]] },
-        'heatmap-intensity': { stops: [[11, 0.5], [15, 2]] },
-        'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(255,255,255,0)', 0.2, color, 1, color],
-        'heatmap-radius': { stops: [[11, 5], [15, 10]] },
-        'heatmap-opacity': { default: 1, stops: [[14, 1], [15, 0]] }
-      }
-    }, 'waterway-label');
-  }
-
-  // Function to update the filters based on selected year and technology
-  function updateMapFilters() {
-    let yearFilter = ['<=', ['number', ['get', 'Year']], selectedYear];
-
-    if (selectedTech === 'All') {
-      // Update all layers for the selected year
-      map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], yearFilter]);
-      map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], yearFilter]);
-      map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], yearFilter]);
-      
-      map.setLayoutProperty('PV-heat', 'visibility', 'visible');
-      map.setLayoutProperty('EV-heat', 'visibility', 'visible');
-      map.setLayoutProperty('HP-heat', 'visibility', 'visible');
-    } else {
-      // Hide all layers first
-      map.setLayoutProperty('PV-heat', 'visibility', 'none');
-      map.setLayoutProperty('EV-heat', 'visibility', 'none');
-      map.setLayoutProperty('HP-heat', 'visibility', 'none');
-
-      // Show only the selected technology
-      if (selectedTech === 'PV') {
-        map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], yearFilter]);
-        map.setLayoutProperty('PV-heat', 'visibility', 'visible');
-      } else if (selectedTech === 'EV') {
-        map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], yearFilter]);
-        map.setLayoutProperty('EV-heat', 'visibility', 'visible');
-      } else if (selectedTech === 'HP') {
-        map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], yearFilter]);
-        map.setLayoutProperty('HP-heat', 'visibility', 'visible');
-      }
-    }
-  }
-
-
     map.on('load', () => {
  
         map.addSource('heat', {
@@ -185,14 +133,9 @@
             data: './data/der.geojson'
         });
 
-        addHeatmapLayer('PV-heat', 'PV', 'rgb(255,80,80)'); // Red for PV
-        addHeatmapLayer('EV-heat', 'EV', 'rgb(80,80,255)'); // Blue for EV
-        addHeatmapLayer('HP-heat', 'HP', 'rgb(80,255,80)'); // Green for HP
-
-            // Initial map filter update
-        updateMapFilters();
-
-      });
+        addHeatmapLayer('PV-heat', 'PV');
+        addHeatmapLayer('EV-heat', 'EV');
+        addHeatmapLayer('HP-heat', 'HP');
 
 
         // map.addLayer(
@@ -378,18 +321,149 @@
         // 'waterway-label'
         // );
             
-           // Update year filter when the slider is moved
-  document.getElementById('yearSlider').addEventListener('input', function (e) {
-    selectedYear = parseInt(e.target.value);
-    document.getElementById('yearLabel').innerText = selectedYear;
-    updateMapFilters(); // Update map based on new year
-  });
+            
+        map.addLayer(
+            {
+            'id': 'heat-point',
+            'type': 'circle',
+            'source': 'heat',
+            'minzoom': 14,
+            'filter': filterYear,
+            'paint': {
+            // increase the radius of the circle as the zoom level increases
+            'circle-radius': {
+            'property': 'Year',
+            'type': 'exponential',
+            'stops': [
+            [{ zoom: 15, value: 1 }, 1],
+            [{ zoom: 15, value: 62 }, 2],
+            [{ zoom: 22, value: 1 }, 4],
+            [{ zoom: 22, value: 62 }, 10]
+            ]
+            },
+            'circle-color': {
+            'property': 'Year',
+            'type': 'exponential',
+            'stops': [
+            [0, 'rgba(236,222,239,0)'],
+            [10, 'rgb(236,222,239)'],
+            [20, 'rgb(208,209,230)'],
+            [30, 'rgb(166,189,219)'],
+            [40, 'rgb(103,169,207)'],
+            [50, 'rgb(28,144,153)'],
+            [60, 'rgb(1,108,89)']
+            ]
+            },
+            'circle-stroke-color': 'white',
+            'circle-stroke-width': 1,
+            'circle-opacity': {
+            'stops': [
+            [14, 0],
+            [15, 1]
+            ]
+            }
+            }
+            },
+            'waterway-label'
+            );
 
-  // Update technology filter when a new technology is selected
-  document.getElementById('tech-select').addEventListener('change', function () {
-    selectedTech = this.value;
-    updateMapFilters(); // Update map based on new technology selection
-  });
+            // Update technology filter when the toggle is changed
+            document.querySelectorAll('input[name="tech"]').forEach((radio) => {
+          radio.addEventListener('change', (event) => {
+            selectedTech = event.target.value;
+            updateMapFilters();
+          });
+        });
+
+
+
+          // update year filter when the slider is dragged
+        document.getElementById('slider').addEventListener('input', (event) => {
+          const year = parseInt(event.target.value);
+          // update the map
+          filterYear = ['<=', ['number', ['get', 'Year']], year];
+          // Update filters for each layer
+          // map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
+          // map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
+          // map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
+          // map.setFilter('heat-point', filterYear);
+        updateMapFilters();
+        document.getElementById('active-year').innerText = year;
+        });
+
+    map.on('click', 'heat-point', (event) => {
+        new mapboxgl.Popup()
+        .setLngLat(event.features[0].geometry.coordinates)
+        .setHTML(`<strong>tech:</strong> ${event.features[0].properties.tech}`)
+        .addTo(map);
+        });     
+      });
+
+  // Function to add heatmap layers based on technology
+  function addHeatmapLayer(layerId, techType) {
+    
+      map.addLayer({
+        id: layerId,
+        type: 'heatmap',
+        source: 'heat',
+        maxzoom: 15,
+        filter: ['==', ['get', 'tech'], techType],
+        paint: {
+          'heatmap-weight': {
+            property: 'tech',
+            type: 'exponential',
+            stops: [
+              [1, 0],
+              [62, 1]
+            ]
+          },
+          'heatmap-intensity': {
+            stops: [
+              [11, 1],
+              [15, 3]
+            ]
+          },
+          'heatmap-color': [
+            'interpolate',
+            ['linear'],
+            ['heatmap-density'],
+            0, techType === 'PV' ? 'rgba(255,220,220,0)' : techType === 'EV' ? 'rgba(220,220,255,0)' : 'rgba(220,255,220,0)',
+            0.2, techType === 'PV' ? 'rgb(255,160,160)' : techType === 'EV' ? 'rgb(160,160,255)' : 'rgb(160,255,160)',
+            0.4, techType === 'PV' ? 'rgb(255,120,120)' : techType === 'EV' ? 'rgb(120,120,255)' : 'rgb(120,255,120)',
+            0.6, techType === 'PV' ? 'rgb(255,80,80)' : techType === 'EV' ? 'rgb(80,80,255)' : 'rgb(80,255,80)',
+            0.8, techType === 'PV' ? 'rgb(200,40,40)' : techType === 'EV' ? 'rgb(40,40,200)' : 'rgb(40,200,40)'
+          ],
+          'heatmap-radius': {
+            stops: [
+              [11, 15],
+              [15, 20]
+            ]
+          },
+          'heatmap-opacity': {
+            default: 1,
+            stops: [
+              [14, 1],
+              [15, 0]
+            ]
+          }
+        }
+      }, 'waterway-label');
+    }
+
+    // Function to update the filters based on selected tech and year
+    function updateMapFilters() {
+      if (selectedTech === 'All') {
+        // Show all technologies
+        map.setFilter('PV-heat', filterYear);
+        map.setFilter('EV-heat', filterYear);
+        map.setFilter('HP-heat', filterYear);
+      } else {
+        // Show only the selected technology
+        map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
+        map.setFilter('EV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'EV' ? 'EV' : '']]);
+        map.setFilter('HP-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'HP' ? 'HP' : '']]);
+      }
+    }
 
   </script>
 </body>
