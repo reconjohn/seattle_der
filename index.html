@@ -179,9 +179,9 @@
   function updateMapFilters() {
     if (selectedTech === 'All') {
       // Show all technologies
-      map.setFilter('PV-heat', filterYear);
-      map.setFilter('EV-heat', filterYear);
-      map.setFilter('HP-heat', filterYear);
+      map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
+      map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
+      map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
     } else {
       // Show only the selected technology
       map.setFilter('PV-heat', ['all', filterYear, ['==', ['get', 'tech'], selectedTech === 'PV' ? 'PV' : '']]);
@@ -252,9 +252,9 @@
             radio.addEventListener('change', (event) => {
               selectedTech = event.target.value;
               updateMapFilters();
-              map.setFilter('heat-point', filterYear);
-          });
-        });
+
+              });
+            });
 
 
 
@@ -265,7 +265,7 @@
           filterYear = ['<=', ['number', ['get', 'Year']], year];
 
         updateMapFilters();
-        map.setFilter('heat-point', filterYear);
+
         document.getElementById('active-year').innerText = year;
         });
 
