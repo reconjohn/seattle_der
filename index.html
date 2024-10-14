@@ -197,9 +197,10 @@
             data: './data/der.geojson'
         });
 
+        addHeatmapLayer('HP-heat', 'HP', 'rgb(80,255,80)'); // Green for HP
         addHeatmapLayer('PV-heat', 'PV', 'rgb(255,80,80)'); // Red for PV
         addHeatmapLayer('EV-heat', 'EV', 'rgb(80,80,255)'); // Blue for EV
-        addHeatmapLayer('HP-heat', 'HP', 'rgb(80,255,80)'); // Green for HP
+
 
 
         map.addLayer(
@@ -249,9 +250,9 @@
 
             // Update technology filter when the toggle is changed
             document.querySelectorAll('input[name="tech"]').forEach((radio) => {
-          radio.addEventListener('change', (event) => {
-            selectedTech = event.target.value;
-            updateMapFilters();
+            radio.addEventListener('change', (event) => {
+              selectedTech = event.target.value;
+              updateMapFilters();
           });
         });
 
