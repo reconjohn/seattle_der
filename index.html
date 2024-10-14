@@ -113,7 +113,7 @@
       style: 'mapbox://styles/mapbox/dark-v11',
       center: [-122.293, 47.5755],
         zoom: 11,
-        pitch: 60.00,
+        pitch: 10.00,
         bearing: 0
     });
 
@@ -123,6 +123,68 @@
             type: 'geojson',
             data: './data/der.geojson'
         });
+
+
+        map.addLayer(
+            { 
+            id: 'HP-heat',
+            type: 'heatmap',
+            source: 'heat',
+            maxzoom: 15,
+            filter: ['all', ['==', ['get', 'tech'], 'HP'], filterYear], // Filter for tech = HP
+            paint: {
+            // increase weight as diameter breast height increases
+            'heatmap-weight': {
+                property: 'tech',
+                type: 'exponential',
+                stops: [
+                [1, 0],
+                [62, 1]
+                ]
+            },
+            // increase intensity as zoom level increases
+            'heatmap-intensity': {
+                stops: [
+                [11, 1],
+                [15, 3]
+                ]
+            },
+            // assign color values be applied to points depending on their density
+            'heatmap-color': [
+                'interpolate',
+                ['linear'],
+                ['heatmap-density'],
+                0,
+                'rgba(220,255,220,0)',
+                0.2,
+                'rgb(160,255,160)',
+                0.4,
+                'rgb(120,255,120)',
+                0.6,
+                'rgb(80,255,80)',
+                0.8,
+                'rgb(40,200,40)'
+            ],
+            // increase radius as zoom increases
+            'heatmap-radius': {
+                stops: [
+                [11, 15],
+                [15, 20]
+                ]
+            },
+            // decrease opacity to transition into the circle layer
+            'heatmap-opacity': {
+                default: 1,
+                stops: [
+                [14, 1],
+                [15, 0]
+                ]
+            }
+            }
+            },
+            'waterway-label'
+            ); 
+
 
         map.addLayer(
             { 
@@ -246,66 +308,6 @@
         'waterway-label'
         );
             
-
-      map.addLayer(
-            { 
-            id: 'HP-heat',
-            type: 'heatmap',
-            source: 'heat',
-            maxzoom: 15,
-            filter: ['all', ['==', ['get', 'tech'], 'HP'], filterYear], // Filter for tech = HP
-            paint: {
-            // increase weight as diameter breast height increases
-            'heatmap-weight': {
-                property: 'tech',
-                type: 'exponential',
-                stops: [
-                [1, 0],
-                [62, 1]
-                ]
-            },
-            // increase intensity as zoom level increases
-            'heatmap-intensity': {
-                stops: [
-                [11, 1],
-                [15, 3]
-                ]
-            },
-            // assign color values be applied to points depending on their density
-            'heatmap-color': [
-                'interpolate',
-                ['linear'],
-                ['heatmap-density'],
-                0,
-                'rgba(220,255,220,0)',
-                0.2,
-                'rgb(160,255,160)',
-                0.4,
-                'rgb(120,255,120)',
-                0.6,
-                'rgb(80,255,80)',
-                0.8,
-                'rgb(40,200,40)'
-            ],
-            // increase radius as zoom increases
-            'heatmap-radius': {
-                stops: [
-                [11, 15],
-                [15, 20]
-                ]
-            },
-            // decrease opacity to transition into the circle layer
-            'heatmap-opacity': {
-                default: 1,
-                stops: [
-                [14, 1],
-                [15, 0]
-                ]
-            }
-            }
-            },
-            'waterway-label'
-            ); 
             
         map.addLayer(
             {
@@ -359,9 +361,9 @@
           // update the map
           filterYear = ['<=', ['number', ['get', 'Year']], year];
           // Update filters for each layer
+          map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
           map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
           map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
-          map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
           map.setFilter('heat-point', filterYear);
 
         document.getElementById('active-year').innerText = year;
