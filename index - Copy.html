@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8' />
+    <title>DER heatmap</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+
+
+        input[type=range] {
+            width: 100%;
+        } 
+
+      h1 {
+        font-size: 20px;
+        line-height: 30px;
+      }
+
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 10px;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2dc4b2;
+      }
+
+      #console {
+        position: absolute;
+        margin: 10px;
+        width: 240px;
+        background-color: white;
+        padding: 10px 20px;
+      }
+
+      .session {
+        margin-bottom: 20px;
+      }
+
+      .row {
+        height: 12px;
+        width: 100%;
+      }
+
+      .colors {
+        background: linear-gradient(
+          to right,
+          #2dc4b2,
+          #3bb3c3,
+          #669ec4,
+          #8b88b6,
+          #a2719b,
+          #aa5e79
+        );
+        margin-bottom: 5px;
+      }
+
+      .label {
+        width: 15%;
+        display: inline-block;
+        text-align: center;
+      }
+    </style>
+</head>
+
+<body>
+  <div id='map'></div>
+  <div id="console">
+    <h1>DER Cumulative Installation Heat Map in Seattle</h1>
+    <h2>Rooftop Solar (red)<br>Electric Vehicles (blue)<br>Heat pumps (green)</h2>
+    <p>Data:<a href="https://data.seattle.gov/Built-Environment/Electrical-Permits/c4tj-daue/about_data">Seattle Electrical Permits</a> from Seattle open data portal</p>
+    <div class="session">
+      <h2>Year: <label id="active-year">2019</label></h2>
+      <input
+        id="slider"
+        class="row"
+        type="range"
+        min="1999"
+        max="2019"
+        step="1"
+        value="2019"
+      />
+    </div>
+    <p align="right"><a href="https://reconjohn.github.io/">Yohan Min</a></p>
+      
+  </div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmVjb25qb2huIiwiYSI6ImNtMjZ0a3EzOTBkMTAya3B2eWJzcHZ2aWgifQ.BHuInY-82Tw_XHuHXAIBIg';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [-122.293, 47.5755],
+        zoom: 10,
+        pitch: 30.00,
+        bearing: 0
+    });
+
+    map.on('load', () => {
+        let filterYear = ['==', ['number', ['get', 'Year']], 2019];
+        map.addSource('heat', {
+            type: 'geojson',
+            data: './data/der.geojson'
+        });
+
+
+        map.addLayer(
+            { 
+            id: 'HP-heat',
+            type: 'heatmap',
+            source: 'heat',
+            maxzoom: 15,
+            filter: ['all', ['==', ['get', 'tech'], 'HP'], filterYear], // Filter for tech = HP
+            paint: {
+            // increase weight as diameter breast height increases
+            'heatmap-weight': {
+                property: 'tech',
+                type: 'exponential',
+                stops: [
+                [1, 0],
+                [62, 1]
+                ]
+            },
+            // increase intensity as zoom level increases
+            'heatmap-intensity': {
+                stops: [
+                [11, 1],
+                [15, 3]
+                ]
+            },
+            // assign color values be applied to points depending on their density
+            'heatmap-color': [
+                'interpolate',
+                ['linear'],
+                ['heatmap-density'],
+                0,
+                'rgba(220,255,220,0)',
+                0.2,
+                'rgb(160,255,160)',
+                0.4,
+                'rgb(120,255,120)',
+                0.6,
+                'rgb(80,255,80)',
+                0.8,
+                'rgb(40,200,40)'
+            ],
+            // increase radius as zoom increases
+            'heatmap-radius': {
+                stops: [
+                [11, 15],
+                [15, 20]
+                ]
+            },
+            // decrease opacity to transition into the circle layer
+            'heatmap-opacity': {
+                default: 1,
+                stops: [
+                [14, 1],
+                [15, 0]
+                ]
+            }
+            }
+            },
+            'waterway-label'
+            ); 
+
+
+        map.addLayer(
+            { 
+            id: 'PV-heat',
+            type: 'heatmap',
+            source: 'heat',
+            maxzoom: 15,
+            filter: ['all', ['==', ['get', 'tech'], 'PV'], filterYear], // Filter for tech = PV
+            paint: {
+            // increase weight as diameter breast height increases
+            'heatmap-weight': {
+                property: 'tech',
+                type: 'exponential',
+                stops: [
+                [1, 0],
+                [62, 1]
+                ]
+            },
+            // increase intensity as zoom level increases
+            'heatmap-intensity': {
+                stops: [
+                [11, 1],
+                [15, 3]
+                ]
+            },
+            // assign color values be applied to points depending on their density
+            'heatmap-color': [
+                'interpolate',
+                ['linear'],
+                ['heatmap-density'],
+
+                0,
+                'rgba(255,220,220,0)',
+                0.2,
+                'rgb(255,160,160)',
+                0.4,
+                'rgb(255,120,120)',
+                0.6,
+                'rgb(255,80,80)',
+                0.8,
+                'rgb(200,40,40)'
+            ],
+            // increase radius as zoom increases
+            'heatmap-radius': {
+                stops: [
+                [11, 15],
+                [15, 20]
+                ]
+            },
+            // decrease opacity to transition into the circle layer
+            'heatmap-opacity': {
+                default: 1,
+                stops: [
+                [14, 1],
+                [15, 0]
+                ]
+            }
+            }
+            },
+            'waterway-label'
+            );
+
+
+        map.addLayer(
+            { 
+            id: 'EV-heat',
+            type: 'heatmap',
+            source: 'heat',
+            maxzoom: 15,
+            filter: ['all', ['==', ['get', 'tech'], 'EV'], filterYear], // Filter for tech = EV
+            paint: {
+            // increase weight as diameter breast height increases
+            'heatmap-weight': {
+                property: 'tech',
+                type: 'exponential',
+                stops: [
+                [1, 0],
+                [62, 1]
+                ]
+            },
+            // increase intensity as zoom level increases
+            'heatmap-intensity': {
+                stops: [
+                [11, 1],
+                [15, 3]
+                ]
+            },
+            // assign color values be applied to points depending on their density
+            'heatmap-color': [
+                'interpolate',
+                ['linear'],
+                ['heatmap-density'],
+                0,
+                'rgba(220,220,255,0)',
+                0.2,
+                'rgb(160,160,255)',
+                0.4,
+                'rgb(120,120,255)',
+                0.6,
+                'rgb(80,80,255)',
+                0.8,
+                'rgb(40,40,200)'
+            ],
+            // increase radius as zoom increases
+            'heatmap-radius': {
+                stops: [
+                [11, 15],
+                [15, 20]
+                ]
+            },
+            // decrease opacity to transition into the circle layer
+            'heatmap-opacity': {
+                default: 1,
+                stops: [
+                [14, 1],
+                [15, 0]
+                ]
+        }
+        }
+        },
+        'waterway-label'
+        );
+            
+            
+        map.addLayer(
+            {
+            'id': 'heat-point',
+            'type': 'circle',
+            'source': 'heat',
+            'minzoom': 14,
+            'filter': filterYear,
+            'paint': {
+            // increase the radius of the circle as the zoom level and dbh value increases
+            'circle-radius': {
+            'property': 'Year',
+            'type': 'exponential',
+            'stops': [
+            [{ zoom: 15, value: 1 }, 5],
+            [{ zoom: 15, value: 62 }, 10],
+            [{ zoom: 22, value: 1 }, 20],
+            [{ zoom: 22, value: 62 }, 50]
+            ]
+            },
+            'circle-color': {
+            'property': 'Year',
+            'type': 'exponential',
+            'stops': [
+            [0, 'rgba(236,222,239,0)'],
+            [10, 'rgb(236,222,239)'],
+            [20, 'rgb(208,209,230)'],
+            [30, 'rgb(166,189,219)'],
+            [40, 'rgb(103,169,207)'],
+            [50, 'rgb(28,144,153)'],
+            [60, 'rgb(1,108,89)']
+            ]
+            },
+            'circle-stroke-color': 'white',
+            'circle-stroke-width': 1,
+            'circle-opacity': {
+            'stops': [
+            [14, 0],
+            [15, 1]
+            ]
+            }
+            }
+            },
+            'waterway-label'
+            );
+    });
+
+          // update year filter when the slider is dragged
+        document.getElementById('slider').addEventListener('input', (event) => {
+          const year = parseInt(event.target.value);
+          // update the map
+          filterYear = ['<=', ['number', ['get', 'Year']], year];
+          // Update filters for each layer
+          map.setFilter('HP-heat', ['all', ['==', ['get', 'tech'], 'HP'], filterYear]);
+          map.setFilter('PV-heat', ['all', ['==', ['get', 'tech'], 'PV'], filterYear]);
+          map.setFilter('EV-heat', ['all', ['==', ['get', 'tech'], 'EV'], filterYear]);
+          map.setFilter('heat-point', filterYear);
+
+        document.getElementById('active-year').innerText = year;
+        });
+
+    map.on('click', 'heat-point', (event) => {
+        new mapboxgl.Popup()
+        .setLngLat(event.features[0].geometry.coordinates)
+        .setHTML(`<strong>tech:</strong> ${event.features[0].properties.tech}`)
+        .addTo(map);
+        });     
+
+    
+
+  </script>
+</body>
+</html>
